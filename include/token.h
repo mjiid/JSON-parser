@@ -5,15 +5,18 @@ enum class TokenType {
         String,
         Number,
         True,
-        False,                                                                  Null,
+        False,
+        Null,
         LeftBrace,
         RightBrace,
-        LeftBracket,                                                            RightBracket,
+        LeftBracket,
+        RightBracket,
         Colon,
-        Comma,                                                          };
+        Comma,
+};
 
 
 struct Token {
         TokenType type;
         std::string value;
-}                                                                       ~   
+} 
