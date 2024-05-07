@@ -1,73 +1,77 @@
-#include <vector>
+#include "lexer.h"
 #include <string>
-#include <cctype>
-#include "token.h"
+#include <vector>
+#include <cctype>  // For std::isdigit, std::isspace
 
-class JSONLexer {
-public:
-    JSONLexer(const std::string& input) : input(input), position(0) {}
+JSONLexer::JSONLexer(const std::string& in) : input(in), position(0) {}
+size_t position;
 
-    std::vector<Token> tokenize() {
-        std::vector<Token> tokens;
 
+Token JSONLexer::getNextToken() {
         while (position < input.length()) {
-            char currentChar = input[position];
+            char current = input[position];
 
-            // Skip whitespace
-            if (isspace(currentChar)) {
-                position++;
-                continue;
-            }
-
-            switch (currentChar) {
-                case '{':
-                    tokens.push_back({TokenType::LeftBrace, "{"});
-                    break;
-                case '}':
-                    tokens.push_back({TokenType::RightBrace, "}"});
-                    break;
-                case '[':
-                    tokens.push_back({TokenType::LeftBracket, "["});
-                    break;
-                case ']':
-                    tokens.push_back({TokenType::RightBracket, "]"});
-                    break;
-                case ':':
-                    tokens.push_back({TokenType::Colon, ":"});
-                    break;
-                case ',':
-                    tokens.push_back({TokenType::Comma, ","});
-                    break;
-                case '"':
-                    tokens.push_back({TokenType::String, parseString()});
-                    break;
+            switch (current) {
+                case '{': position++; return Token(TokenType::LBrace);
+                case '}': position++; return Token(TokenType::RBrace);
+                case '[': position++; return Token(TokenType::LBracket);
+                case ']': position++; return Token(TokenType::RBracket);
+                case ':': position++; return Token(TokenType::Colon);
+                case ',': position++; return Token(TokenType::Comma);
+                case '"': return getStringToken();
+                case ' ': case '\t': case '\n': case '\r':
+                    position++; break; // Ignore whitespace
                 default:
-                    // Treat everything else as a separate token:
-                    tokens.push_back({TokenType::None, std::string(1, currentChar)});
-                    break;
+                    if (std::isdigit(current) || current == '-') {
+                        return getNumberToken();
+                    } else if (std::isalpha(current)) {
+                        return getLiteralToken();
+                    } else {
+                        position++; return Token(TokenType::Unknown);
+                    }
             }
-
-            position++;
         }
+        return Token(TokenType::EndOfFile);
+}
 
-        return tokens;
-    }
-
-private:
-    std::string input;
-    size_t position;
-
-    std::string parseString() {
-        std::string stringValue;
-        position++; // Skip opening quote
-
+Token JSONLexer::getStringToken() {
+        size_t start = ++position; // Skip initial quote
         while (position < input.length() && input[position] != '"') {
-            stringValue += input[position];
+            if (input[position] == '\\' && (position + 1 < input.length())) {
+                // Skip escaped character
+                position++;
+            }
             position++;
         }
-
+        std::string value = input.substr(start, position - start);
         position++; // Skip closing quote
-        return stringValue;
-    }
-};
+        return Token(TokenType::String, value);
+  
+}
+
+Token JSONLexer::getNumberToken() {
+        size_t start = position;
+        while (position < input.length() && (std::isdigit(input[position]) || input[position] == '.' || input[position] == '-')) {
+            position++;
+        }
+        return Token(TokenType::Number, input.substr(start, position - start));
+ 
+}
+
+Token JSONLexer::getLiteralToken() {
+        size_t start = position;
+        while (position < input.length() && std::isalpha(input[position])) {
+            position++;
+        }
+        std::string value = input.substr(start, position - start);
+        if (value == "true") {
+            return Token(TokenType::True);
+        } else if (value == "false") {
+            return Token(TokenType::False);
+        } else if (value == "null") {
+            return Token(TokenType::Null);
+        }
+        return Token(TokenType::Unknown, value);
+ 
+}
 
