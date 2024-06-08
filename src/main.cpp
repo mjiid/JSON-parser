@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
-#include "lexer.h"  // Include necessary header for JSONLexer
+#include "lexer.h" 
 
 int main() {
     std::string json = R"({"key": "value", "array": [true, null, 123]})";
-    JSONLexer lexer(json);  // Corrected class name to JSONLexer
+    JSONLexer lexer(json); 
 
     Token token = lexer.getNextToken();
     while (token.type != TokenType::EndOfFile) {
