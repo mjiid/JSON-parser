@@ -2,6 +2,7 @@
 #include <cassert>
 #include "Parser.h"
 
+// Unit tests for the json parser
 
 void testSimpleValues() {
     Parser parser("null");
