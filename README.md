@@ -10,17 +10,17 @@ A simple JSON parser implemented in C++. This library allows users to parse JSON
 ## Usage
 1. Clone the repository:
    ```bash
-   git clone https://github.com/mjiid/JSON-parser.git
+      git clone https://github.com/mjiid/JSON-parser.git
    ```
 2. Build the project using CMake:
   ```bash
-  cd JSON-parser
-  mkdir build && cd build
-  cmake ..
-  make
+     cd JSON-parser
+     mkdir build && cd build
+     cmake ..
+     make
   ```
 
 3. Include the parser in your project:
-  ```bash
-  #include "json_parser.h"
+  ```cpp
+     #include "json_parser.h"
   ```
